@@ -1,0 +1,55 @@
+
+apply plugin: "java"
+apply plugin: "idea"
+apply plugin: "maven-publish"
+
+if (!JavaVersion.current().java6Compatible) {
+  throw new IllegalStateException("Must be built at least with Java 8")
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = "o4m.ratpack"
+version = "0.1-SNAPSHOT"
+
+repositories {
+  jcenter()
+}
+
+def ratpackVersion = "0.9.16"
+
+dependencies {
+  compile "io.ratpack:ratpack-core:${ratpackVersion}"
+  compile "io.ratpack:ratpack-guice:${ratpackVersion}"
+
+  compile 'org.slf4j:slf4j-api:1.7.12'
+
+  testCompile 'junit:junit:4.12'
+}
+
+idea {
+  project {
+    languageLevel "1.8"
+  }
+}
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allSource
+  classifier "sources"
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      from components.java
+      artifact sourceJar
+    }
+  }
+
+  repositories {
+    maven {
+      url "$buildDir/repo"
+    }
+  }
+}
