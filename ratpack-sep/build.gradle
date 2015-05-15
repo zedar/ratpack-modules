@@ -10,7 +10,7 @@ if (!JavaVersion.current().java6Compatible) {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-group = "o4m.ratpack"
+group = "o4m.ratpack-modules"
 version = "0.1-SNAPSHOT"
 
 repositories {
@@ -34,9 +34,34 @@ idea {
   }
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// maven repository publication
+// ---------------------------------------------------------------------------------------------------------------------
+
+def moduleInfo = [
+  description: "Service execution patterns module for Ratpack framework",
+  url: "https://github.com/zedar/ratpack-modules/ratpack-sep",
+  issues: "https://github.com/zedar/ratpack-modules/issues",
+  tags: ["ratpack", "async", "service", "pattern"],
+  scm: [
+    url: "git@github.com/zedar/ratpack-modules.git",
+    mavenUrl: "scm:git@github.com:zedar:ratpack-modules.git"
+  ],
+  license: [
+    shortName: "Apache-2.0",
+    fullName: "The Apache Software License, Version 2.0",
+    url: "http://www.apache.org/licenses/LICENSE-2.0.txt"
+  ]
+]
+
 task sourceJar(type: Jar) {
   from sourceSets.main.allSource
   classifier "sources"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  from javadoc.destinationDir
+  classifier "javadoc"
 }
 
 publishing {
@@ -44,6 +69,46 @@ publishing {
     mavenJava(MavenPublication) {
       from components.java
       artifact sourceJar
+      artifact javadocJar
+
+      pom.withXml {
+        asNode().children().last() + {
+          resolveStrategy = Closure.DELEGATE_FIRST // change closure resolver so first th delegate (not the owner) is used.
+
+          name project.name
+          description moduleInfo.description
+          url moduleInfo.url
+
+          scm {
+            connection moduleInfo.scm.mavenUrl
+            developerConnection moduleInfo.scm.mavenUrl
+            url moduleInfo.scm.url
+          }
+
+          licenses {
+            license {
+              name moduleInfo.license.fullName
+              url moduleInfo.license.url
+            }
+          }
+
+          // List of core committers
+          developers {
+            if (project.hasProperty("developerName")) {
+              developer {
+                name developerName
+                email developerEmail
+                organization developerOrganization
+                organizationUrl developerOrganizationUrl
+              }
+            }
+          }
+
+          // List of contributors
+          contributors {
+          }
+        }
+      }
     }
   }
 

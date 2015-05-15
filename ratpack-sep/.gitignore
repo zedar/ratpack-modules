@@ -2,3 +2,4 @@ build
 ratpack-sep.iml
 ratpack-sep.ipr
 ratpack-sep.iws
+gradle.properties
