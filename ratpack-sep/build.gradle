@@ -2,6 +2,7 @@
 apply plugin: "java"
 apply plugin: "idea"
 apply plugin: "maven-publish"
+apply plugin: "groovy"
 
 if (!JavaVersion.current().java6Compatible) {
   throw new IllegalStateException("Must be built at least with Java 8")
@@ -10,7 +11,7 @@ if (!JavaVersion.current().java6Compatible) {
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-group = "o4m.ratpack-modules"
+group = "ratpack-modules"
 version = "0.1-SNAPSHOT"
 
 repositories {
@@ -22,10 +23,12 @@ def ratpackVersion = "0.9.16"
 dependencies {
   compile "io.ratpack:ratpack-core:${ratpackVersion}"
   compile "io.ratpack:ratpack-guice:${ratpackVersion}"
+  compile "io.ratpack:ratpack-jackson:${ratpackVersion}"
 
   compile 'org.slf4j:slf4j-api:1.7.12'
 
-  testCompile 'junit:junit:4.12'
+  testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+  testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
 }
 
 idea {
