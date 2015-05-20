@@ -18,6 +18,7 @@ package ratpack.sep;
 
 import ratpack.exec.ExecControl;
 import ratpack.exec.Promise;
+import ratpack.func.BiFunction;
 import ratpack.func.Function;
 
 /**
@@ -65,6 +66,22 @@ public interface Action<T,O> {
   Promise<ActionResult<O>> exec(ExecControl execControl) throws Exception;
 
   /**
+   * Executes the action, getting the object of type {@code T} and providing promise for the object of type {@code O}.
+   * <p>
+   * This method returns a promise to allow action execution to be asynchronous.
+   * <p>
+   * If this method throws an exception it is equivalent to error result.
+   *
+   * @param execControl an execution control
+   * @param t an object of type {@code T}
+   * @return an promise for the object of type {@code O}
+   * @throws Exception any
+   */
+  default Promise<ActionResult<O>> exec(ExecControl execControl, T t) throws Exception {
+    return exec(execControl, getData());
+  }
+
+  /**
    * Factory for action implementation.
    *
    * @param name a name of the action
@@ -109,6 +126,37 @@ public interface Action<T,O> {
       @Override
       public Promise<ActionResult<O>> exec(ExecControl execControl) throws Exception {
         return func.apply(execControl);
+      }
+    };
+  }
+
+  /**
+   * Factory for action implementation.
+   *
+   * @param name a name of the action
+   * @param func an action implementation that takes {@code T} data as parameter
+   * @param <T> a type of parameter for the action implementation
+   * @param <O> a type of the promised output object from the action implementation
+   * @return a named action implementation
+   */
+  public static <T, O> Action<T, O> ofBiFunc(String name, BiFunction<? super ExecControl, T, Promise<ActionResult<O>>> func) {
+    return new Action<T, O>() {
+      @Override
+      public String getName() { return name; }
+
+      @Override
+      public T getData() {
+        return null;
+      }
+
+      @Override
+      public Promise<ActionResult<O>> exec(ExecControl execControl) throws Exception {
+        return exec(execControl, getData());
+      }
+
+      @Override
+      public Promise<ActionResult<O>> exec(ExecControl execControl, T t) throws Exception {
+        return func.apply(execControl, t);
       }
     };
   }

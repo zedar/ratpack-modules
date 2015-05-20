@@ -99,12 +99,12 @@ class FanOutFanInSpec extends Specification {
   ExecHarness harness = ExecHarness.harness()
   FanOutFanIn pattern
   Registry registry
-  TypedAction<ActionResults<String>, ActionResults<CountedResult>> counterAction
+  Action<ActionResults<String>, CountedResult> counterAction
 
   def setup() {
     pattern = new FanOutFanIn()
     registry = Registries.empty()
-    counterAction = TypedAction.of("finalizer") { execControl, actionResults ->
+    counterAction = Action.ofBiFunc("finalizer") { execControl, actionResults ->
       execControl.promise { fulfiller ->
         CountedResult countedResult = new CountedResult()
         actionResults.results?.each { k, v ->
@@ -114,7 +114,7 @@ class FanOutFanInSpec extends Specification {
             countedResult.failed++
           }
         }
-        fulfiller.success(new ActionResults(ImmutableMap.of("counted", ActionResult.success(countedResult))))
+        fulfiller.success(ActionResult.success(countedResult))
       }
     }
   }
@@ -130,9 +130,11 @@ class FanOutFanInSpec extends Specification {
 
   def "fan-in action has to be defined"() {
     given:
-    def actions = [Action.of("foo", { execControl ->
-      execControl.promise { fulfiller ->
-        fulfiller.success(ActionResult.success())}})]
+    def actions = [
+      Action.of("foo", { execControl ->
+        execControl.promise { fulfiller ->
+          fulfiller.success(ActionResult.success())}})
+    ]
 
     when:
     Promise<ActionResults> promise = pattern.apply(harness.control, registry, actions, null)
@@ -143,34 +145,39 @@ class FanOutFanInSpec extends Specification {
 
   def "action has to have a name"() {
     given:
-    def actions = [new BlockingAction(null, null, null, null)]
-    TypedAction<ActionResults, ActionResults> finalizer = TypedAction.of("finalizer", { execControl, actionResults ->
+    def actions = [
+      new BlockingAction(null, null, null, null)
+    ]
+    Action<ActionResults, ActionResults> finalizer = Action.ofBiFunc("finalizer", { execControl, actionResults ->
       execControl.promise { fulfiller ->
         // does nothing with results
-        fulfiller.success(actionResults)
+        fulfiller.success(ActionResult.success(actionResults))
       }
     })
 
     when:
-    ExecResult<ActionResults> result = harness.yield { execControl ->
+    ExecResult<ActionResults<ActionResults>> result = harness.yield { execControl ->
       pattern.apply(execControl, registry, actions, finalizer)}
 
     then:
     ActionResults actionResults = result.getValue()
     actionResults
     actionResults.results
+    ActionResults fanoutResults = actionResults.results["finalizer"].data
     def nullPointerError = ActionResult.error(new NullPointerException())
-    actionResults.results["ACTION_NULL_IDX_0"].code == nullPointerError.code
-    actionResults.results["ACTION_NULL_IDX_0"].message == nullPointerError.message
+    fanoutResults.results["ACTION_NULL_IDX_0"].code == nullPointerError.code
+    fanoutResults.results["ACTION_NULL_IDX_0"].message == nullPointerError.message
   }
 
   def "an action provides data to fan-in finalizer"() {
     given:
-    def actions = [new BlockingAction("foo", "foodata", null, null)]
-    TypedAction<ActionResults<String>, ActionResults<String>> finalizer = TypedAction.of("finalizer", { execControl, actionResults ->
+    def actions = [
+      new BlockingAction("foo", "foodata", null, null)
+    ]
+    Action<ActionResults<String>, ActionResults<String>> finalizer = Action.ofBiFunc("finalizer", { execControl, actionResults ->
       execControl.promise { fulfiller ->
         // does nothing with results
-        fulfiller.success(actionResults)
+        fulfiller.success(ActionResult.success(actionResults))
       }
     })
 
@@ -182,7 +189,8 @@ class FanOutFanInSpec extends Specification {
     ActionResults<String> actionResults = result.getValue()
     actionResults
     actionResults.results
-    with(actionResults.results["foo"]) {
+    ActionResults fanoutResults = actionResults.results.finalizer.data
+    with(fanoutResults.results["foo"]) {
       code == "0"
     }
   }
@@ -202,8 +210,8 @@ class FanOutFanInSpec extends Specification {
     then:
     ActionResults<CountedResult> countedResult = result.getValue()
     countedResult
-    countedResult.results["counted"].getData().succeded == 0
-    countedResult.results["counted"].getData().failed == 2
+    countedResult.results.finalizer.data.succeded == 0
+    countedResult.results.finalizer.data.failed == 2
   }
 
   def "exception thrown from creation of promise for result are handled and provided to finalizer"() {
@@ -221,8 +229,8 @@ class FanOutFanInSpec extends Specification {
     then:
     ActionResults<CountedResult> countedResult = result.getValue()
     countedResult
-    countedResult.results["counted"].getData().succeded == 0
-    countedResult.results["counted"].getData().failed == 2
+    countedResult.results.finalizer.data.succeded == 0
+    countedResult.results.finalizer.data.failed == 2
   }
 
   def "counted succeeded and failed actions"() {
@@ -239,8 +247,8 @@ class FanOutFanInSpec extends Specification {
     then:
     ActionResults<CountedResult> countedResult = result.getValue()
     countedResult
-    countedResult.results["counted"].getData().succeded == 1
-    countedResult.results["counted"].getData().failed == 1
+    countedResult.results.finalizer.data.succeded == 1
+    countedResult.results.finalizer.data.failed == 1
   }
 
   def "parallel actions finalized and counted"() {
@@ -264,8 +272,8 @@ class FanOutFanInSpec extends Specification {
     then:
     ActionResults<CountedResult> countedResult = result.getValue()
     countedResult
-    countedResult.results["counted"].getData().succeded == 4
-    countedResult.results["counted"].getData().failed == 0
+    countedResult.results.finalizer.data.succeded == 4
+    countedResult.results.finalizer.data.failed == 0
   }
 
   def "fan out requests and collect one response"() {
@@ -275,13 +283,13 @@ class FanOutFanInSpec extends Specification {
       Action.of("req2") { ec -> ec.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
       Action.of("req3") { ec -> ec.promise { f -> f.success(ActionResult.success(new Request3("value3")))}}
     ]
-    TypedAction<ActionResults<Request>, ActionResults<Response>> finalizer = TypedAction.of("finalizer") { ec, actionResults ->
+    Action<ActionResults<Request>, Response> finalizer = Action.ofBiFunc("finalizer") { ec, actionResults ->
       ec.promise { f ->
         Response resp = new Response()
         resp.value1 = ((Request1)actionResults.results["req1"].data).value
         resp.value2 = ((Request2)actionResults.results["req2"].data).value
         resp.value3 = ((Request3)actionResults.results["req3"].data).value
-        f.success(new ActionResults(ImmutableMap.of("finalizer", ActionResult.success(resp))))
+        f.success(ActionResult.success(resp))
       }
     }
     FanOutFanIn<Request,Request,Response> pattern = new FanOutFanIn<>()
@@ -293,7 +301,7 @@ class FanOutFanInSpec extends Specification {
     then:
     ActionResults<Response> actionResults = result.getValue()
     actionResults
-    with(actionResults.results["finalizer"]) {
+    with(actionResults.results.finalizer) {
       code == "0"
       data.value1 == "value1"
       data.value2 == "value2"

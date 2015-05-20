@@ -65,12 +65,13 @@ public class FanOutFanIn<T,O,U> {
   public Promise<ActionResults<U>> apply(ExecControl execControl,
                                          Registry registry,
                                          Iterable<Action<T,O>> actions,
-                                         TypedAction<ActionResults<O>, ActionResults<U>> postAction) throws Exception {
+                                         Action<ActionResults<O>, U> postAction) throws Exception {
     Objects.requireNonNull(postAction);
     return apply(execControl, registry, actions)
       .flatMap(results -> postAction
         .exec(execControl, results)
-        .mapError(throwable -> new ActionResults<>(ImmutableMap.of(postAction.getName(), ActionResult.error(throwable)))));
+        .mapError(ActionResult::error)
+        .map(result -> new ActionResults<U>(ImmutableMap.of(postAction.getName(), result))));
   }
 
   private Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Iterable<Action<T,O>> actions) throws Exception {
