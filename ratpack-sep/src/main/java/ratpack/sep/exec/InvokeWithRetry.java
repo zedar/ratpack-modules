@@ -27,7 +27,6 @@ import ratpack.exec.ExecControl;
 import ratpack.exec.Fulfiller;
 import ratpack.exec.Promise;
 import ratpack.registry.Registry;
-import ratpack.sep.PatternsModule;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,9 +44,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see ratpack.sep.ActionResult
  * @see ratpack.sep.ActionResults
  */
-public class InvokeWithRetry<T,O> {
+public class InvokeWithRetry<T, O> {
 
-  private static final Logger log = LoggerFactory.getLogger(InvokeWithRetry.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InvokeWithRetry.class);
 
   private final int defaultRetryCount;
 
@@ -72,13 +71,15 @@ public class InvokeWithRetry<T,O> {
    *
    * @return the name of the pattern
    */
-  public String getName() { return PATTERN_NAME; }
+  public String getName() {
+    return PATTERN_NAME;
+  }
 
-  public Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Action<T,O> action) throws Exception {
+  public Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Action<T, O> action) throws Exception {
     return apply(execControl, registry, action, null, null);
   }
 
-  public Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Action<T,O> action, Integer actionRetryCount) throws Exception {
+  public Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Action<T, O> action, Integer actionRetryCount) throws Exception {
     return apply(execControl, registry, action, actionRetryCount, null);
   }
 
@@ -99,7 +100,7 @@ public class InvokeWithRetry<T,O> {
    */
   public Promise<ActionResults<O>> apply(ExecControl execControl,
                                          Registry registry,
-                                         Action<T,O> action,
+                                         Action<T, O> action,
                                          Integer actionRetryCount,
                                          Boolean actionAsyncRetry) throws Exception {
     if (action == null) {
@@ -117,27 +118,27 @@ public class InvokeWithRetry<T,O> {
   }
 
   public Promise<ActionResults<O>> apply(ExecControl execControl,
-                                         Action<T,O> action,
+                                         Action<T, O> action,
                                          Integer retryCount) throws Exception {
 
-    return execControl.<Map<String, ActionResult<O>>>promise( fulfiller -> {
+    return execControl.<Map<String, ActionResult<O>>>promise(fulfiller -> {
       AtomicInteger repeatCounter = new AtomicInteger(retryCount + 1);
       Map<String, ActionResult<O>> results = Maps.newConcurrentMap();
       applyWithRetry(execControl, fulfiller, action, results, repeatCounter);
     })
       .map(ImmutableMap::copyOf)
-      .map(ActionResults<O>::new);
+      .map(map -> new ActionResults<O>(map));
   }
 
-  private Promise<ActionResults<O>> applyAsync(ExecControl execControl, Action<T,O> action, int retryCount) throws Exception {
-    return execControl.<Map<String, ActionResult<O>>>promise( fulfiller -> {
+  private Promise<ActionResults<O>> applyAsync(ExecControl execControl, Action<T, O> action, int retryCount) throws Exception {
+    return execControl.<Map<String, ActionResult<O>>>promise(fulfiller -> {
       AtomicInteger repeatCounter = new AtomicInteger(1);
       Map<String, ActionResult<O>> results = Maps.newConcurrentMap();
       applyWithRetry(execControl, fulfiller, action, results, repeatCounter);
     })
       .map(ImmutableMap::copyOf)
-      .map(ActionResults<O>::new)
-      .wiretap( result -> {
+      .map(map -> new ActionResults<O>(map))
+      .wiretap(result -> {
         ActionResults<O> actionResults = result.getValue();
         ActionResult<O> actionResult = actionResults.getResults().get(action.getName());
         if (actionResult != null && !"0".equals(actionResult.getCode())) {
@@ -151,10 +152,10 @@ public class InvokeWithRetry<T,O> {
       });
   }
 
-  private void applyWithRetry(ExecControl execControl, Fulfiller<Map<String, ActionResult<O>>> fulfiller, Action<T,O> action, Map<String, ActionResult<O>> results, AtomicInteger repeatCounter) {
-    execControl.exec().start( execution -> applyInternal(execution, action)
+  private void applyWithRetry(ExecControl execControl, Fulfiller<Map<String, ActionResult<O>>> fulfiller, Action<T, O> action, Map<String, ActionResult<O>> results, AtomicInteger repeatCounter) {
+    execControl.exec().start(execution -> applyInternal(execution, action)
       .then(result -> {
-        log.debug("APPLY retry from: {}", repeatCounter.get());
+        LOG.debug("APPLY retry from: {}", repeatCounter.get());
         results.put(action.getName(), result);
         if ("0".equals(result.getCode())) {
           fulfiller.success(results);
@@ -168,7 +169,7 @@ public class InvokeWithRetry<T,O> {
       }));
   }
 
-  private Promise<ActionResult<O>> applyInternal(ExecControl execControl, Action<T,O> action) {
+  private Promise<ActionResult<O>> applyInternal(ExecControl execControl, Action<T, O> action) {
     try {
       return action.exec(execControl).mapError(ActionResult::error);
     } catch (Exception ex) {

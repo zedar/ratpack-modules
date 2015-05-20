@@ -17,7 +17,6 @@
 package ratpack.sep;
 
 import com.google.common.collect.ImmutableMap;
-import ratpack.sep.ActionResult;
 
 /**
  * A value type representing the result of running multiple actions.
@@ -45,5 +44,7 @@ public class ActionResults<O> {
    *
    * @return the results
    */
-  public ImmutableMap<String, ActionResult<O>> getResults() { return results; }
+  public ImmutableMap<String, ActionResult<O>> getResults() {
+    return results;
+  }
 }

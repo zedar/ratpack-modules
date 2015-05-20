@@ -35,7 +35,7 @@ import ratpack.func.Function;
  * @see ratpack.sep.exec.Parallel
  * @see ratpack.sep.exec.FanOutFanIn
  */
-public interface Action<T,O> {
+public interface Action<T, O> {
   /**
    * The <b>unique</b> name of the action.
    * <p>
@@ -91,13 +91,17 @@ public interface Action<T,O> {
    * @param <O> a type of action's output data
    * @return the named action implementation
    */
-  public static <T,O> Action<T,O> of(String name, T data, Function<? super ExecControl, Promise<ActionResult<O>>> func) {
-    return new Action<T,O>() {
+  public static <T, O> Action<T, O> of(String name, T data, Function<? super ExecControl, Promise<ActionResult<O>>> func) {
+    return new Action<T, O>() {
       @Override
-      public String getName() { return name; }
+      public String getName() {
+        return name;
+      }
 
       @Override
-      public T getData() { return data; }
+      public T getData() {
+        return data;
+      }
 
       @Override
       public Promise<ActionResult<O>> exec(ExecControl execControl) throws Exception {
@@ -118,7 +122,9 @@ public interface Action<T,O> {
   public static <T, O> Action<T, O> of(String name, BiFunction<? super ExecControl, T, Promise<ActionResult<O>>> func) {
     return new Action<T, O>() {
       @Override
-      public String getName() { return name; }
+      public String getName() {
+        return name;
+      }
 
       @Override
       public T getData() {

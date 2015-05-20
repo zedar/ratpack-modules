@@ -3,6 +3,7 @@ apply plugin: "java"
 apply plugin: "idea"
 apply plugin: "maven-publish"
 apply plugin: "groovy"
+apply plugin: "checkstyle"
 
 if (!JavaVersion.current().java6Compatible) {
   throw new IllegalStateException("Must be built at least with Java 8")
@@ -121,3 +122,15 @@ publishing {
     }
   }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// checkstyle
+// ---------------------------------------------------------------------------------------------------------------------
+
+def checkstyleConfigDir = new File(buildscript.sourceFile.parentFile, 'config/checkstyle')
+
+checkstyle {
+  configFile = new File(checkstyleConfigDir, "checkstyle.xml")
+  configProperties.checkstyleConfigDir = checkstyleConfigDir
+}
+

@@ -24,7 +24,6 @@ import ratpack.sep.ActionResults;
 import ratpack.exec.ExecControl;
 import ratpack.exec.Promise;
 import ratpack.registry.Registry;
-import ratpack.sep.PatternsModule;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -39,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @see ratpack.sep.ActionResult
  * @see ratpack.sep.ActionResults
  */
-public class Parallel<T,O> {
+public class Parallel<T, O> {
 
   /**
    * The name of the pattern that indicates pattern to execute in handler.
@@ -53,7 +52,9 @@ public class Parallel<T,O> {
    *
    * @return the name of the pattern
    */
-  public String getName() { return PATTERN_NAME; }
+  public String getName() {
+    return PATTERN_NAME;
+  }
 
   /**
    * Executes {@code Params.actions} in parallel.
@@ -68,8 +69,8 @@ public class Parallel<T,O> {
    * @return a promise for the results
    * @throws Exception any
    */
-  public Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Iterable<Action<T,O>> actions) throws Exception {
-    Iterator<Action<T,O>> iterator = actions.iterator();
+  public Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Iterable<Action<T, O>> actions) throws Exception {
+    Iterator<Action<T, O>> iterator = actions.iterator();
     if (!iterator.hasNext()) {
       return execControl.promiseOf(new ActionResults<>(ImmutableMap.of()));
     }
@@ -79,7 +80,7 @@ public class Parallel<T,O> {
       Map<String, ActionResult<O>> results = Maps.newConcurrentMap();
       while (iterator.hasNext()) {
         counter.incrementAndGet();
-        Action<T,O> action = iterator.next();
+        Action<T, O> action = iterator.next();
         if (action == null || action.getName() == null) {
           int i = counter.decrementAndGet();
           results.put("ACTION_NULL_IDX_" + i, ActionResult.error(new NullPointerException()));
@@ -104,10 +105,10 @@ public class Parallel<T,O> {
         );
       }
     }).map(ImmutableMap::copyOf)
-      .map(ActionResults<O>::new);
+      .map(map -> new ActionResults<O>(map));
   }
 
-  private Promise<ActionResult<O>> apply(ExecControl execControl, Action<T,O> action) {
+  private Promise<ActionResult<O>> apply(ExecControl execControl, Action<T, O> action) {
     try {
       return action.exec(execControl).mapError(ActionResult::error);
     } catch (Exception ex) {

@@ -34,7 +34,7 @@ import java.util.Objects;
  * @see ratpack.sep.ActionResult
  * @see ratpack.sep.ActionResults
  */
-public class FanOutFanIn<T,O,U> {
+public class FanOutFanIn<T, O, U> {
 
   /**
    * The name of the pattern that indicates pattern to execute in handler.
@@ -48,7 +48,9 @@ public class FanOutFanIn<T,O,U> {
    *
    * @return the name of the pattern
    */
-  public String getName() { return PATTERN_NAME; }
+  public String getName() {
+    return PATTERN_NAME;
+  }
 
   /**
    * Executes actions and applies post processing action.
@@ -64,7 +66,7 @@ public class FanOutFanIn<T,O,U> {
    */
   public Promise<ActionResults<U>> apply(ExecControl execControl,
                                          Registry registry,
-                                         Iterable<Action<T,O>> actions,
+                                         Iterable<Action<T, O>> actions,
                                          Action<ActionResults<O>, U> postAction) throws Exception {
     Objects.requireNonNull(postAction);
     return apply(execControl, registry, actions)
@@ -74,8 +76,8 @@ public class FanOutFanIn<T,O,U> {
         .map(result -> new ActionResults<U>(ImmutableMap.of(postAction.getName(), result))));
   }
 
-  private Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Iterable<Action<T,O>> actions) throws Exception {
-    Parallel<T,O> parallel = new Parallel<>();
+  private Promise<ActionResults<O>> apply(ExecControl execControl, Registry registry, Iterable<Action<T, O>> actions) throws Exception {
+    Parallel<T, O> parallel = new Parallel<>();
     return parallel.apply(execControl, registry, actions);
   }
 }

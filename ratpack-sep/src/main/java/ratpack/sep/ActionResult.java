@@ -39,7 +39,9 @@ public class ActionResult<T> {
    *
    * @return <b>0</b> if no error or another string otherwise
    */
-  public String getCode() { return code; }
+  public String getCode() {
+    return code;
+  }
 
   /**
    * Any message provided as part of action execution, may be {@code null}.
@@ -49,7 +51,9 @@ public class ActionResult<T> {
    * @return any message provided as part of action execution.
    */
   @Nullable
-  public String getMessage() { return message; }
+  public String getMessage() {
+    return message;
+  }
 
   /**
    * A data returned as action results
@@ -57,7 +61,9 @@ public class ActionResult<T> {
    * @return the data associated with the given action result
    */
   @Nullable
-  public T getData() { return data; }
+  public T getData() {
+    return data;
+  }
 
   /**
    * Creates a successful result, with no message.
@@ -65,7 +71,9 @@ public class ActionResult<T> {
    * @param <T> a type of accompanying data
    * @return a successful result, with no message.
    */
-  public static <T> ActionResult<T> success() { return new ActionResult<>("0", null, null); }
+  public static <T> ActionResult<T> success() {
+    return new ActionResult<>("0", null, null);
+  }
 
   /**
    * Creates successful result, with the given message.
@@ -74,7 +82,9 @@ public class ActionResult<T> {
    * @param <T> a type of accompanying data
    * @return a successful result, with the given message
    */
-  public static <T> ActionResult<T> success(String message) { return new ActionResult<>("0", message, null); }
+  public static <T> ActionResult<T> success(String message) {
+    return new ActionResult<>("0", message, null);
+  }
 
   /**
    * Creates successful result with the data assigned
@@ -82,7 +92,9 @@ public class ActionResult<T> {
    * @param <T> a type of accompanying data
    * @return a successful result
    */
-  public static <T> ActionResult<T> success(T data) { return new ActionResult<>("0", null, data); }
+  public static <T> ActionResult<T> success(T data) {
+    return new ActionResult<>("0", null, data);
+  }
 
   /**
    * Creates successful result with the given message and data
@@ -91,7 +103,9 @@ public class ActionResult<T> {
    * @param <T> a type of accompanying data
    * @return a successful result
    */
-  public static <T> ActionResult<T> success(String message, T data) { return new ActionResult<>("0", message, data); }
+  public static <T> ActionResult<T> success(String message, T data) {
+    return new ActionResult<>("0", message, data);
+  }
 
   /**
    * Creates an error result, with the given message.
@@ -101,7 +115,9 @@ public class ActionResult<T> {
    * @param <T> a type of accompanying data
    * @return an failed result, with the given message
    */
-  public static <T> ActionResult<T> error(String code, String message) { return new ActionResult<>(code, message, null); }
+  public static <T> ActionResult<T> error(String code, String message) {
+    return new ActionResult<>(code, message, null);
+  }
 
   /**
    * Creates an error result, with the given exception.
@@ -111,5 +127,7 @@ public class ActionResult<T> {
    * @param <T> a type of accompanying data
    * @return an failed result, with the given error
    */
-  public static <T> ActionResult<T> error(Throwable error) { return new ActionResult<>("100", error.getMessage(), null); }
+  public static <T> ActionResult<T> error(Throwable error) {
+    return new ActionResult<>("100", error.getMessage(), null);
+  }
 }
