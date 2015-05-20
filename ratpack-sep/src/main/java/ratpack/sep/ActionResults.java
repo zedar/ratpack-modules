@@ -21,8 +21,12 @@ import ratpack.sep.ActionResult;
 
 /**
  * A value type representing the result of running multiple actions.
+ * <p>
+ * Every result is defined by its <b>unique</b> name.
  *
- * @see r.p.handling.ExecHandler
+ * @param <O> a data type common to all responses collected as action results.
+ *
+ * @see ratpack.sep.ActionResult
  */
 public class ActionResults<O> {
   private final ImmutableMap<String, ActionResult<O>> results;

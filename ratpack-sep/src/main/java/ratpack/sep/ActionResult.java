@@ -37,7 +37,7 @@ public class ActionResult<T> {
   /**
    * An error code. If <b>0</b> no error was reported.
    *
-   * @return <b>0<b/> if no error or another string otherwise
+   * @return <b>0</b> if no error or another string otherwise
    */
   public String getCode() { return code; }
 
@@ -62,6 +62,7 @@ public class ActionResult<T> {
   /**
    * Creates a successful result, with no message.
    *
+   * @param <T> a type of accompanying data
    * @return a successful result, with no message.
    */
   public static <T> ActionResult<T> success() { return new ActionResult<>("0", null, null); }
@@ -70,6 +71,7 @@ public class ActionResult<T> {
    * Creates successful result, with the given message.
    *
    * @param message a message to accompany the result
+   * @param <T> a type of accompanying data
    * @return a successful result, with the given message
    */
   public static <T> ActionResult<T> success(String message) { return new ActionResult<>("0", message, null); }
@@ -96,6 +98,7 @@ public class ActionResult<T> {
    *
    * @param code an error code
    * @param message a message to accompany the result
+   * @param <T> a type of accompanying data
    * @return an failed result, with the given message
    */
   public static <T> ActionResult<T> error(String code, String message) { return new ActionResult<>(code, message, null); }
@@ -105,6 +108,7 @@ public class ActionResult<T> {
    * <p>
    * The message of the given exception will be used as the message of the result
    * @param error an exception thrown during action exception
+   * @param <T> a type of accompanying data
    * @return an failed result, with the given error
    */
   public static <T> ActionResult<T> error(Throwable error) { return new ActionResult<>("100", error.getMessage(), null); }

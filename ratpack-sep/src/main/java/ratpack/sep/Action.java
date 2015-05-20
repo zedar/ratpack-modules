@@ -19,20 +19,20 @@ package ratpack.sep;
 import ratpack.exec.ExecControl;
 import ratpack.exec.Promise;
 import ratpack.func.Function;
-import ratpack.sep.exec.Pattern;
 
 /**
  * Executes any action. Could be blocking or non-blocking action.
  * <p>
  * Actions are typically used for external services invocation or internal computation logic execution.
- * The results exposed by actions can be reported via HTTP  by a {@link r.p.handling.ExecHandler}.
+ * The results exposed by actions can be reported via HTTP  by a {@link ratpack.sep.internal.ActionResultsRenderer}.
  * <p>
  * The actual execution is implemented by the {@link #exec(ExecControl)} method, that returns a promise for a {@link ActionResult}.
  * <p>
- * The actions are typically executed by the particular {@link Pattern} or combination of patterns.
+ * The actions are typically executed by the particular {@code execution pattern} or combination of patterns.
  *
- * @see r.p.handling.ExecHandler
- * @see Pattern
+ * @see ratpack.sep.exec.InvokeWithRetry
+ * @see ratpack.sep.exec.Parallel
+ * @see ratpack.sep.exec.FanOutFanIn
  */
 public interface Action<T,O> {
   /**
@@ -69,6 +69,8 @@ public interface Action<T,O> {
    *
    * @param name a name of the action
    * @param func an action implementation
+   * @param <T> a type of action's input data
+   * @param <O> a type of action's output data
    * @return the named action implementation
    */
   public static <T,O> Action<T,O> of(String name, Function<? super ExecControl, Promise<ActionResult<O>>> func) {
@@ -90,8 +92,10 @@ public interface Action<T,O> {
    * Factory for action implementation.
    *
    * @param name a name of the action
-   * @param data a data associated to the action
+   * @param data the input data associated to the action
    * @param func an action implementation
+   * @param <T> a type of action's input data
+   * @param <O> a type of action's output data
    * @return the named action implementation
    */
   public static <T,O> Action<T,O> of(String name, T data, Function<? super ExecControl, Promise<ActionResult<O>>> func) {

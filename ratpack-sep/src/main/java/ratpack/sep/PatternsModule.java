@@ -23,7 +23,7 @@ import ratpack.guice.ConfigurableModule;
  * <p>
  * Available patterns:
  * <ul>
- *   <li><b>Fan-out/Fan-in</b> - execute actions in parallel and apply post processing action to results</></li>
+ *   <li><b>Fan-out/Fan-in</b> - execute actions in parallel and apply post processing action to results</li>
  * </ul>
  *
  * <p>

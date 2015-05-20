@@ -35,9 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>
  * Actions execute independently as {@code promises}. They are not notified about each other.
  *
- * @see Pattern
- * @see Action
- * @see PatternsModule
+ * @see ratpack.sep.Action
+ * @see ratpack.sep.ActionResult
+ * @see ratpack.sep.ActionResults
  */
 public class Parallel<T,O> {
 
@@ -64,6 +64,7 @@ public class Parallel<T,O> {
    *
    * @param execControl an execution control
    * @param registry the server registry
+   * @param actions the collections of actions to execute in parallel
    * @return a promise for the results
    * @throws Exception any
    */

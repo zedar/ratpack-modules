@@ -40,6 +40,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Asynchronous retry means, that action is executed and if fails, all subsequent retries are executed in separate execution.
  * Result is immediately returned to the caller.
  * Asynchronous retry usually requires correlation id but this should be implemented by custom actions.
+ *
+ * @see ratpack.sep.Action
+ * @see ratpack.sep.ActionResult
+ * @see ratpack.sep.ActionResults
  */
 public class InvokeWithRetry<T,O> {
 
@@ -86,8 +90,12 @@ public class InvokeWithRetry<T,O> {
    *
    * @param execControl an execution control
    * @param registry the server registry
+   * @param action an action to execute
+   * @param actionRetryCount the number of retries after {@code action} failure
+   * @param actionAsyncRetry if true all subsequent retries are executed synchronously while still in non blocking mode.
+   *                          If false retries are executed asynchronously.
    * @return the promise for action results
-   * @throws Exception
+   * @throws Exception any
    */
   public Promise<ActionResults<O>> apply(ExecControl execControl,
                                          Registry registry,

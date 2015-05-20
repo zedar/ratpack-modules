@@ -30,10 +30,9 @@ import java.util.Objects;
  * Actions execute independently and asynchronously as {@code promises}. They are not notified about each other.
  * The post processing action execute as {@code promise} too, so it is non-blocking.
  *
- * @see Pattern
- * @see Action
- * @see TypedAction
- * @see PatternsModule
+ * @see ratpack.sep.Action
+ * @see ratpack.sep.ActionResult
+ * @see ratpack.sep.ActionResults
  */
 public class FanOutFanIn<T,O,U> {
 
@@ -58,6 +57,8 @@ public class FanOutFanIn<T,O,U> {
    *
    * @param execControl an execution control
    * @param registry the server registry
+   * @param actions the collection of actions to execute in parallel as fan out
+   * @param postAction an action to execute at the end of parallel execution of {@code actions}
    * @return a promise for results
    * @throws Exception any
    */
