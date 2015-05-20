@@ -86,7 +86,7 @@ public class InvokeWithRetry<T, O> {
   /**
    * Executes {@code action} and if it fails retries its execution given number of times.
    * <p>
-   * Default retry could be set as {@link PatternsModule.Config#defaultRetryCount} but could be overridden as
+   * Default retry could be set as {@link ratpack.sep.PatternsModule.Config#defaultRetryCount} but could be overridden as
    * {@code actionRetryCount}
    *
    * @param execControl an execution control

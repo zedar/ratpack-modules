@@ -122,7 +122,7 @@ class ParallelSpec extends Specification {
       code == "0"
     }
     with(actionResults.results.get("bar")) {
-      code == "100"
+      code.startsWith("java.io.IOException")
       message == "bar exception"
     }
   }

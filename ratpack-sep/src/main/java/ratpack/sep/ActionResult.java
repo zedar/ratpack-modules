@@ -22,15 +22,19 @@ import ratpack.api.Nullable;
  * The result of an action execution.
  * <p>
  * Instances can be create by one of the static methods.
+ *
+ * @param <T> a type of data accompanying action result
  */
 public class ActionResult<T> {
   private final String code;
   private final String message;
-  private T data;
+  private final Throwable error;
+  private final T data;
 
-  private ActionResult(String code, String message, T data) {
+  private ActionResult(String code, String message, Throwable error, T data) {
     this.code = code;
     this.message = message;
+    this.error = error;
     this.data = data;
   }
 
@@ -56,6 +60,16 @@ public class ActionResult<T> {
   }
 
   /**
+   * An error thrown by an action.
+   *
+   * @return an error
+   */
+  @Nullable
+  public Throwable getError() {
+    return error;
+  }
+
+  /**
    * A data returned as action results
    *
    * @return the data associated with the given action result
@@ -66,13 +80,35 @@ public class ActionResult<T> {
   }
 
   /**
+   * Is action result successful?
+   *
+   * @return true if action result is successful
+   */
+  public boolean isSuccess() {
+    if ("0".equals(code) && error == null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Is failed action result?
+   *
+   * @return true if failed action result
+   */
+  public boolean isError() {
+    return !isSuccess();
+  }
+
+  /**
    * Creates a successful result, with no message.
    *
    * @param <T> a type of accompanying data
    * @return a successful result, with no message.
    */
   public static <T> ActionResult<T> success() {
-    return new ActionResult<>("0", null, null);
+    return new ActionResult<>("0", null, null, null);
   }
 
   /**
@@ -83,7 +119,7 @@ public class ActionResult<T> {
    * @return a successful result, with the given message
    */
   public static <T> ActionResult<T> success(String message) {
-    return new ActionResult<>("0", message, null);
+    return new ActionResult<>("0", message, null, null);
   }
 
   /**
@@ -93,7 +129,7 @@ public class ActionResult<T> {
    * @return a successful result
    */
   public static <T> ActionResult<T> success(T data) {
-    return new ActionResult<>("0", null, data);
+    return new ActionResult<>("0", null, null, data);
   }
 
   /**
@@ -104,7 +140,7 @@ public class ActionResult<T> {
    * @return a successful result
    */
   public static <T> ActionResult<T> success(String message, T data) {
-    return new ActionResult<>("0", message, data);
+    return new ActionResult<>("0", message, null, data);
   }
 
   /**
@@ -116,7 +152,7 @@ public class ActionResult<T> {
    * @return an failed result, with the given message
    */
   public static <T> ActionResult<T> error(String code, String message) {
-    return new ActionResult<>(code, message, null);
+    return new ActionResult<>(code, message, null, null);
   }
 
   /**
@@ -128,6 +164,6 @@ public class ActionResult<T> {
    * @return an failed result, with the given error
    */
   public static <T> ActionResult<T> error(Throwable error) {
-    return new ActionResult<>("100", error.getMessage(), null);
+    return new ActionResult<>(error.toString(), error.getMessage(), error, null);
   }
 }
