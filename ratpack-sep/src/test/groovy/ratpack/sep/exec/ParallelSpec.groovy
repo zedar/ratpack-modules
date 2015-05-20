@@ -163,10 +163,10 @@ class ParallelSpec extends Specification {
   def "parallel requests collect data from different resources"() {
     given:
     def actions = [
-      Action.of("requestValue1") { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request1("value1")))}},
-      Action.of("requestValue2") { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
-      Action.of("requestValue3") { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request3("value3")))}},
-      Action.of("requestValue4") { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request4("value4")))}}
+      Action.of("requestValue1", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request1("value1")))}},
+      Action.of("requestValue2", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
+      Action.of("requestValue3", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request3("value3")))}},
+      Action.of("requestValue4", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request4("value4")))}}
     ]
     Parallel<Request,Request> pattern = new Parallel<>()
 

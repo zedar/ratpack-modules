@@ -16,17 +16,14 @@
 
 package ratpack.sep.exec
 
-import com.google.common.collect.ImmutableMap
 import ratpack.sep.Action
 import ratpack.sep.ActionResult
 import ratpack.sep.ActionResults
-import ratpack.sep.TypedAction
 import ratpack.exec.ExecControl
 import ratpack.exec.ExecResult
 import ratpack.exec.Promise
 import ratpack.registry.Registries
 import ratpack.registry.Registry
-import ratpack.sep.exec.FanOutFanIn
 import ratpack.test.exec.ExecHarness
 import spock.lang.AutoCleanup
 import spock.lang.Specification
@@ -104,7 +101,7 @@ class FanOutFanInSpec extends Specification {
   def setup() {
     pattern = new FanOutFanIn()
     registry = Registries.empty()
-    counterAction = Action.ofBiFunc("finalizer") { execControl, actionResults ->
+    counterAction = Action.of("finalizer") { execControl, actionResults ->
       execControl.promise { fulfiller ->
         CountedResult countedResult = new CountedResult()
         actionResults.results?.each { k, v ->
@@ -131,7 +128,7 @@ class FanOutFanInSpec extends Specification {
   def "fan-in action has to be defined"() {
     given:
     def actions = [
-      Action.of("foo", { execControl ->
+      Action.of("foo", "foo", { execControl ->
         execControl.promise { fulfiller ->
           fulfiller.success(ActionResult.success())}})
     ]
@@ -148,7 +145,7 @@ class FanOutFanInSpec extends Specification {
     def actions = [
       new BlockingAction(null, null, null, null)
     ]
-    Action<ActionResults, ActionResults> finalizer = Action.ofBiFunc("finalizer", { execControl, actionResults ->
+    Action<ActionResults, ActionResults> finalizer = Action.of("finalizer", { execControl, actionResults ->
       execControl.promise { fulfiller ->
         // does nothing with results
         fulfiller.success(ActionResult.success(actionResults))
@@ -174,7 +171,7 @@ class FanOutFanInSpec extends Specification {
     def actions = [
       new BlockingAction("foo", "foodata", null, null)
     ]
-    Action<ActionResults<String>, ActionResults<String>> finalizer = Action.ofBiFunc("finalizer", { execControl, actionResults ->
+    Action<ActionResults<String>, ActionResults<String>> finalizer = Action.of("finalizer", { execControl, actionResults ->
       execControl.promise { fulfiller ->
         // does nothing with results
         fulfiller.success(ActionResult.success(actionResults))
@@ -217,8 +214,8 @@ class FanOutFanInSpec extends Specification {
   def "exception thrown from creation of promise for result are handled and provided to finalizer"() {
     given:
     def actions = [
-        Action.of("failure1") { execControl -> throw new IOException("failure1 exception") },
-        Action.of("failure2") { execControl -> throw new IOException("failure2 exception") }
+        Action.of("failure1", null) { execControl -> throw new IOException("failure1 exception") },
+        Action.of("failure2", null) { execControl -> throw new IOException("failure2 exception") }
     ]
 
     when:
@@ -236,8 +233,8 @@ class FanOutFanInSpec extends Specification {
   def "counted succeeded and failed actions"() {
     given:
     def actions = [
-      Action.of("foo") { execControl -> execControl.promise { fulfiller -> fulfiller.success(ActionResult.success())}},
-      Action.of("bar") { execControl -> execControl.promise { fulfiller -> fulfiller.error(new IOException())}}
+      Action.of("foo", null) { execControl -> execControl.promise { fulfiller -> fulfiller.success(ActionResult.success())}},
+      Action.of("bar", null) { execControl -> execControl.promise { fulfiller -> fulfiller.error(new IOException())}}
     ]
 
     when:
@@ -279,11 +276,11 @@ class FanOutFanInSpec extends Specification {
   def "fan out requests and collect one response"() {
     given:
     def actions = [
-      Action.of("req1") { ec -> ec.promise { f -> f.success(ActionResult.success(new Request1("value1")))}},
-      Action.of("req2") { ec -> ec.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
-      Action.of("req3") { ec -> ec.promise { f -> f.success(ActionResult.success(new Request3("value3")))}}
+      Action.of("req1", null) { ec -> ec.promise { f -> f.success(ActionResult.success(new Request1("value1")))}},
+      Action.of("req2", null) { ec -> ec.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
+      Action.of("req3", null) { ec -> ec.promise { f -> f.success(ActionResult.success(new Request3("value3")))}}
     ]
-    Action<ActionResults<Request>, Response> finalizer = Action.ofBiFunc("finalizer") { ec, actionResults ->
+    Action<ActionResults<Request>, Response> finalizer = Action.of("finalizer") { ec, actionResults ->
       ec.promise { f ->
         Response resp = new Response()
         resp.value1 = ((Request1)actionResults.results["req1"].data).value

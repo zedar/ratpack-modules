@@ -117,7 +117,7 @@ class VETOSpec extends Specification {
 
     when:
     ExecResult<ActionResults<ResponseData>> result = harness.yield { ec ->
-      verify.apply(ec, registry, Action.<RequestData,RequestData>of("verify") { ec2 -> ec2.promise { f ->
+      verify.apply(ec, registry, Action.<RequestData,RequestData>of("verify", null) { ec2 -> ec2.promise { f ->
         if (!reqData.value1 || !reqData.value2) {
           f.error(new MissingFormatArgumentException("value1 or value2 is required"))
         } else {
@@ -126,7 +126,7 @@ class VETOSpec extends Specification {
       }})
       .flatMap { actionResults ->
         InvokeWithRetry<RequestData,ResponseData> operate = new InvokeWithRetry<>(3)
-        operate.apply(ec, registry, Action.<RequestData,ResponseData>of("operate") { ec2 -> ec2.promise { f->
+        operate.apply(ec, registry, Action.<RequestData,ResponseData>of("operate", null) { ec2 -> ec2.promise { f->
           ResponseData resData = [value: "operate_value"]
           f.success(ActionResult.success(resData))
         }})
