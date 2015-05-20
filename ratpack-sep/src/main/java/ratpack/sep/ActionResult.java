@@ -16,6 +16,7 @@
 
 package ratpack.sep;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ratpack.api.Nullable;
 
 /**
@@ -28,6 +29,7 @@ import ratpack.api.Nullable;
 public class ActionResult<T> {
   private final String code;
   private final String message;
+  @JsonIgnore
   private final Throwable error;
   private final T data;
 
