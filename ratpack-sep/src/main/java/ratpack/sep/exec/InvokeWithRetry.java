@@ -40,6 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Result is immediately returned to the caller.
  * Asynchronous retry usually requires correlation id but this should be implemented by custom actions.
  *
+ * {@inject.snippet ratpack.sep.exec.InvokeWithRetryTest#call()}
+ *
  * @see ratpack.sep.Action
  * @see ratpack.sep.ActionResult
  * @see ratpack.sep.ActionResults

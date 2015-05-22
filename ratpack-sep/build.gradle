@@ -28,6 +28,9 @@ dependencies {
 
   compile 'org.slf4j:slf4j-api:1.7.12'
 
+  // Necessary for javadoc taglet
+  compile files("${System.properties['java.home']}/../lib/tools.jar")
+
   testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
   testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
 }
@@ -61,6 +64,19 @@ def moduleInfo = [
 task sourceJar(type: Jar) {
   from sourceSets.main.allSource
   classifier "sources"
+}
+
+javadoc {
+  def tagletList = ["taglet.InjectCodeSnippetTaglet"]
+  options.setTaglets(tagletList)
+  options.addStringOption "tagletPath", sourceSets.main.output.classesDir.path
+
+  def additionalAssets = """
+      <script src=\"{@docRoot}/../js/all.min.js\"></script>
+      <link rel="stylesheet" type="text/css" href="{@docRoot}/../css/fonts.css">
+    """.replaceAll("(^|\\n)\\s*", "")
+
+  options.bottom additionalAssets
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
