@@ -1,9 +1,12 @@
 
-apply plugin: "java"
-apply plugin: "idea"
-apply plugin: "maven-publish"
-apply plugin: "groovy"
-apply plugin: "checkstyle"
+plugins {
+  id "java"
+  id "idea"
+  id "maven-publish"
+  id "groovy"
+  id "checkstyle"
+  id "com.jfrog.bintray" version "1.2"
+}
 
 if (!JavaVersion.current().java6Compatible) {
   throw new IllegalStateException("Must be built at least with Java 8")
@@ -157,3 +160,31 @@ checkstyle {
 // ---------------------------------------------------------------------------------------------------------------------
 
 publish.dependsOn check
+
+// ---------------------------------------------------------------------------------------------------------------------
+// bintray
+// ---------------------------------------------------------------------------------------------------------------------
+
+bintray {
+  user = "bintrayUser"
+  key = "bintrayKey"
+  publications = ['mavenJava']
+  dryRun = false
+  publish = true
+  pkg {
+    repo = 'maven'
+    name = project.name
+    desc = moduleInfo.description
+    websiteUrl = moduleInfo.url
+    issueTrackerUrl = moduleInfo.issues
+    vcsUrl = moduleInfo.scm.url
+    licenses = [moduleInfo.license.shortName]
+    labels = moduleInfo.tags
+    version {
+      gpg {
+        sign = true
+        passphrase = gpgPassphrase
+      }
+    }
+  }
+}
