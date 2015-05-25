@@ -87,11 +87,7 @@ public class ActionResult<T> {
    * @return true if action result is successful
    */
   public boolean isSuccess() {
-    if ("0".equals(code) && error == null) {
-      return true;
-    } else {
-      return false;
-    }
+    return "0".equals(code) && error == null;
   }
 
   /**

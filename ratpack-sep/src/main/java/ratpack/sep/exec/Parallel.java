@@ -31,8 +31,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Lets actions to execute in parallel.
- * <p>
+ *
  * Actions execute independently as {@code promises}. They are not notified about each other.
+ *
+ * [source, java]
+ * --
+ * include::{test-dir}/ratpack/sep/exec/ParallelTest.java[tags=all]
+ * --
  *
  * @see ratpack.sep.Action
  * @see ratpack.sep.ActionResult

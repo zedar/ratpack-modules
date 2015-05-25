@@ -16,7 +16,7 @@ Example implementation creates list of actions, some blocking, some throwing exc
 Results of every action execution is returned as renderable (to JSON) ```ActionResults```.
 
 ````java
-    public class LongBlockingIOAction implements Action<String,String> {
+    public class LongBlockingIOAction implements Action<String, String> {
       private final String name;
       private final String data;
       public LongBlockingIOAction(String name, String data) {
@@ -41,7 +41,7 @@ Results of every action execution is returned as renderable (to JSON) ```ActionR
         Iterable<Action<String,String>> actions = new LinkedList<>(Arrays.asList(
           new LongBlockingIOAction("foo", "data"),
           new LongBlockingIOAction("bar", "data"),
-          Action.<String,String>of("buzz", "data", execControl -> execControl
+          Action.<String,String>of("buzz", "data", (execControl, data) -> execControl
             .promise(fulfiller -> {
               throw new IOException("CONTROLLED EXCEPTION");
             })),
@@ -82,7 +82,7 @@ is create in order to merge results of actions. In fact ```mergeResults``` actio
         Iterable<Action<String,String>> actions = new LinkedList<>(Arrays.asList(
           new LongBlockingIOAction("foo", "data"),
           new LongBlockingIOAction("bar", "data"),
-          Action.<String,String>of("buzz", "data", execControl -> execControl
+          Action.<String,String>of("buzz", "data", (execControl, data) -> execControl
             .promise(fulfiller -> {
               throw new IOException("CONTROLLED EXCEPTION");
             })),
@@ -150,7 +150,7 @@ Example implementation creates one action and declares **5** retries in case of 
     public void handle(Context ctx) throws Exception {
       try {
         AtomicInteger execCounter = new AtomicInteger(0);
-        Action<String,String> action = Action.<String,String>of("foo", execControl -> execControl
+        Action<String,String> action = Action.<String,String>of("foo", null, (execControl, data) -> execControl
           .promise( fulfiller -> {
             if (execCounter.incrementAndGet() <= 10) {
               throw new  IOException("FAILED EXECUTION");

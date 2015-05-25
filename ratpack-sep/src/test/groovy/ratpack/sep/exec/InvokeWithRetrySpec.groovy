@@ -67,7 +67,7 @@ class InvokeWithRetrySpec extends Specification {
   def "successful action does not retry"() {
     given:
     AtomicInteger counter = new AtomicInteger()
-    Action<String,String> action = Action.of("foo", "data") { execControl -> execControl.promise{ fulfiller ->
+    Action<String,String> action = Action.of("foo", "data") { execControl, data -> execControl.promise{ fulfiller ->
       counter.incrementAndGet()
       fulfiller.success(ActionResult.success())
     }}
@@ -89,7 +89,7 @@ class InvokeWithRetrySpec extends Specification {
   def "failed action retries default number of times"() {
     given:
     AtomicInteger counter = new AtomicInteger()
-    Action<String,String> action = Action.of("foo", "data") { execControl -> execControl.promise{ fulfiller ->
+    Action<String,String> action = Action.of("foo", "data") { execControl, data -> execControl.promise{ fulfiller ->
       int current = counter.incrementAndGet()
       fulfiller.error(new IOException("Failure $current"))
     }}
@@ -111,7 +111,7 @@ class InvokeWithRetrySpec extends Specification {
   def "failed action retries custom number of times"() {
     given:
     AtomicInteger counter = new AtomicInteger()
-    Action<String,String> action = Action.of("foo", "data") { execControl -> execControl.promise{ fulfiller ->
+    Action<String,String> action = Action.of("foo", "data") { execControl, data -> execControl.promise{ fulfiller ->
       int current = counter.incrementAndGet()
       fulfiller.error(new IOException("Failure $current"))
     }}
@@ -133,7 +133,7 @@ class InvokeWithRetrySpec extends Specification {
   def "successful action after 2 retries stops execution"() {
     given:
     AtomicInteger counter = new AtomicInteger()
-    Action<String,String> action = Action.of("foo", null) { execControl -> execControl.promise{ fulfiller ->
+    Action<String,String> action = Action.of("foo", null) { execControl, data -> execControl.promise{ fulfiller ->
       int current = counter.incrementAndGet()
       if (current >= 3) {
         fulfiller.success(ActionResult.success())
@@ -160,7 +160,7 @@ class InvokeWithRetrySpec extends Specification {
     given:
     CountDownLatch releaser = new CountDownLatch(1)
     AtomicInteger counter = new AtomicInteger()
-    Action<String,String> action = Action.of("foo", null) { execControl -> execControl.promise{ fulfiller ->
+    Action<String,String> action = Action.of("foo", null) { execControl, data -> execControl.promise{ fulfiller ->
       int current = counter.incrementAndGet()
       if (current > 2) {
         releaser.countDown()
@@ -191,7 +191,7 @@ class InvokeWithRetrySpec extends Specification {
   def "async invoke returns results asynchronously"() {
     given:
     AtomicInteger counter = new AtomicInteger()
-    Action<String,String> action = Action.of("foo", null) { execControl -> execControl.promise{ fulfiller ->
+    Action<String,String> action = Action.of("foo", null) { execControl, data -> execControl.promise{ fulfiller ->
       int current = counter.incrementAndGet()
       if (current > 2) {
         fulfiller.success(ActionResult.success())

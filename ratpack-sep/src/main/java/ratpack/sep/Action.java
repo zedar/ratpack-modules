@@ -19,7 +19,6 @@ package ratpack.sep;
 import ratpack.exec.ExecControl;
 import ratpack.exec.Promise;
 import ratpack.func.BiFunction;
-import ratpack.func.Function;
 
 /**
  * Executes any action. Could be blocking or non-blocking action.
@@ -85,13 +84,12 @@ public interface Action<T, O> {
    * Factory for action implementation.
    *
    * @param name a name of the action
-   * @param data the input data associated to the action
-   * @param func an action implementation
-   * @param <T> a type of action's input data
-   * @param <O> a type of action's output data
-   * @return the named action implementation
+   * @param func an action implementation that takes {@code T} data as parameter
+   * @param <T> a type of parameter for the action implementation
+   * @param <O> a type of the promised output object from the action implementation
+   * @return a named action implementation
    */
-  public static <T, O> Action<T, O> of(String name, T data, Function<? super ExecControl, Promise<ActionResult<O>>> func) {
+  public static <T, O> Action<T, O> of(String name, T data, BiFunction<? super ExecControl, T, Promise<ActionResult<O>>> func) {
     return new Action<T, O>() {
       @Override
       public String getName() {
@@ -101,34 +99,6 @@ public interface Action<T, O> {
       @Override
       public T getData() {
         return data;
-      }
-
-      @Override
-      public Promise<ActionResult<O>> exec(ExecControl execControl) throws Exception {
-        return func.apply(execControl);
-      }
-    };
-  }
-
-  /**
-   * Factory for action implementation.
-   *
-   * @param name a name of the action
-   * @param func an action implementation that takes {@code T} data as parameter
-   * @param <T> a type of parameter for the action implementation
-   * @param <O> a type of the promised output object from the action implementation
-   * @return a named action implementation
-   */
-  public static <T, O> Action<T, O> of(String name, BiFunction<? super ExecControl, T, Promise<ActionResult<O>>> func) {
-    return new Action<T, O>() {
-      @Override
-      public String getName() {
-        return name;
-      }
-
-      @Override
-      public T getData() {
-        return null;
       }
 
       @Override

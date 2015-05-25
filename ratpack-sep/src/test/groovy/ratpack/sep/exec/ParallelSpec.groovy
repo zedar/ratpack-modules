@@ -87,7 +87,7 @@ class ParallelSpec extends Specification {
   def "one action generates one response"() {
     given:
     def actions = [
-      Action.of("foo", "data") { execControl -> execControl.promise { fulfiller -> fulfiller.success(ActionResult.success())}}
+      Action.of("foo", "data") { execControl, data -> execControl.promise { fulfiller -> fulfiller.success(ActionResult.success())}}
     ]
 
     when:
@@ -106,8 +106,8 @@ class ParallelSpec extends Specification {
   def "successful action and failed action generates two responses"() {
     given:
     def actions = [
-      Action.of("foo", "data") { execControl -> execControl.promise { fulfiller -> fulfiller.success(ActionResult.success())}},
-      Action.of("bar", "data") { execControl -> throw new IOException("bar exception") }
+      Action.of("foo", "data") { execControl, data -> execControl.promise { fulfiller -> fulfiller.success(ActionResult.success())}},
+      Action.of("bar", "data") { execControl, data -> throw new IOException("bar exception") }
     ]
 
     when:
@@ -133,7 +133,7 @@ class ParallelSpec extends Specification {
     CountDownLatch releaser = new CountDownLatch(1)
 
     for (int i = 0; i < 10; i++) {
-      actions.add(Action.of("foo_$i", "data") { execControl ->
+      actions.add(Action.of("foo_$i", "data") { execControl, data ->
         execControl.blocking {
           releaser.await()
           ActionResult.success("SUCCESS")
@@ -163,10 +163,10 @@ class ParallelSpec extends Specification {
   def "parallel requests collect data from different resources"() {
     given:
     def actions = [
-      Action.of("requestValue1", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request1("value1")))}},
-      Action.of("requestValue2", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
-      Action.of("requestValue3", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request3("value3")))}},
-      Action.of("requestValue4", null) { execControl -> execControl.promise { f -> f.success(ActionResult.success(new Request4("value4")))}}
+      Action.of("requestValue1", null) { execControl, data -> execControl.promise { f -> f.success(ActionResult.success(new Request1("value1")))}},
+      Action.of("requestValue2", null) { execControl, data -> execControl.promise { f -> f.success(ActionResult.success(new Request2("value2")))}},
+      Action.of("requestValue3", null) { execControl, data -> execControl.promise { f -> f.success(ActionResult.success(new Request3("value3")))}},
+      Action.of("requestValue4", null) { execControl, data -> execControl.promise { f -> f.success(ActionResult.success(new Request4("value4")))}}
     ]
     Parallel<Request,Request> pattern = new Parallel<>()
 

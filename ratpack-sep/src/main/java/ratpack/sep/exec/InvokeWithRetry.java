@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * [source,java]
  * --
- * include::{test-dir}/ratpack/sep/exec/InvokeWithRetryTest.java[tags=call]
+ * include::{test-dir}/ratpack/sep/exec/InvokeWithRetryTest.java[tags=all]
  * --
  *
  * @see ratpack.sep.Action

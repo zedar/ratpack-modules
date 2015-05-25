@@ -26,9 +26,14 @@ import java.util.Objects;
 
 /**
  * Lets actions to execute in parallel and once all are finished process results with post processing action.
- * <p>
+ *
  * Actions execute independently and asynchronously as {@code promises}. They are not notified about each other.
  * The post processing action execute as {@code promise} too, so it is non-blocking.
+ *
+ * [source, java]
+ * --
+ * include::{test-dir}/ratpack/sep/exec/FanOutFanInTest.java[tags=all]
+ * --
  *
  * @see ratpack.sep.Action
  * @see ratpack.sep.ActionResult
@@ -54,7 +59,7 @@ public class FanOutFanIn<T, O, U> {
 
   /**
    * Executes actions and applies post processing action.
-   * <p>
+   *
    * This pattern requires execution of post/fan-in action.
    *
    * @param execControl an execution control
