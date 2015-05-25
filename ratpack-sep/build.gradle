@@ -21,6 +21,10 @@ repositories {
 
 def ratpackVersion = "0.9.16"
 
+configurations {
+  asciidoclet
+}
+
 dependencies {
   compile "io.ratpack:ratpack-core:${ratpackVersion}"
   compile "io.ratpack:ratpack-guice:${ratpackVersion}"
@@ -28,8 +32,8 @@ dependencies {
 
   compile 'org.slf4j:slf4j-api:1.7.12'
 
-  // Necessary for javadoc taglet
-  compile files("${System.properties['java.home']}/../lib/tools.jar")
+  // Asciidoc -doclet for javadoc
+  asciidoclet "org.asciidoctor:asciidoclet:1.+"
 
   testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
   testCompile "io.ratpack:ratpack-groovy-test:${ratpackVersion}"
@@ -39,6 +43,27 @@ idea {
   project {
     languageLevel "1.8"
   }
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// javadoc with asciidoc configuration
+// ---------------------------------------------------------------------------------------------------------------------
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allSource
+  classifier "sources"
+}
+
+javadoc {
+  options.docletpath = configurations.asciidoclet.files.asType(List)
+  options.doclet = "org.asciidoctor.Asciidoclet"
+  options.addStringOption "-base-dir", "${projectDir}"
+  options.addStringOption "-attribute", "test-dir=${projectDir}/src/test/java"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  from javadoc.destinationDir
+  classifier "javadoc"
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -60,29 +85,6 @@ def moduleInfo = [
     url: "http://www.apache.org/licenses/LICENSE-2.0.txt"
   ]
 ]
-
-task sourceJar(type: Jar) {
-  from sourceSets.main.allSource
-  classifier "sources"
-}
-
-javadoc {
-  def tagletList = ["taglet.InjectCodeSnippetTaglet"]
-  options.setTaglets(tagletList)
-  options.addStringOption "tagletPath", sourceSets.main.output.classesDir.path
-
-  def additionalAssets = """
-      <script src=\"{@docRoot}/../js/all.min.js\"></script>
-      <link rel="stylesheet" type="text/css" href="{@docRoot}/../css/fonts.css">
-    """.replaceAll("(^|\\n)\\s*", "")
-
-  options.bottom additionalAssets
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-  from javadoc.destinationDir
-  classifier "javadoc"
-}
 
 publishing {
   publications {

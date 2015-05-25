@@ -33,14 +33,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Lets action to execute and in case of failure retry given number of times.
- * <p>
+ *
  * Retry can be done synchronously, while still non blocking or asynchronously.
- * <p>
+ *
  * Asynchronous retry means, that action is executed and if fails, all subsequent retries are executed in separate execution.
  * Result is immediately returned to the caller.
  * Asynchronous retry usually requires correlation id but this should be implemented by custom actions.
  *
- * {@inject.snippet ratpack.sep.exec.InvokeWithRetryTest#call()}
+ * [source,java]
+ * --
+ * include::{test-dir}/ratpack/sep/exec/InvokeWithRetryTest.java[tags=call]
+ * --
  *
  * @see ratpack.sep.Action
  * @see ratpack.sep.ActionResult

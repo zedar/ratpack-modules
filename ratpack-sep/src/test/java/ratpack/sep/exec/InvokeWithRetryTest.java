@@ -28,6 +28,7 @@ public class InvokeWithRetryTest {
   }
 
   @Test
+  // tag::call[]
   public void call() {
     try (ExecHarness harness = ExecHarness.harness()) {
       Registry registry = Registries.empty();
@@ -49,4 +50,5 @@ public class InvokeWithRetryTest {
       assertNull(ex);
     }
   }
+  // end::call[]
 }
