@@ -16,7 +16,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 group = "ratpack-modules"
-version = "0.1-SNAPSHOT"
+//version = "0.1-SNAPSHOT"
+version = "0.1"
 
 repositories {
   jcenter()
@@ -166,8 +167,8 @@ publish.dependsOn check
 // ---------------------------------------------------------------------------------------------------------------------
 
 bintray {
-  user = "bintrayUser"
-  key = "bintrayKey"
+  user = bintrayUser
+  key = bintrayKey
   publications = ['mavenJava']
   dryRun = false
   publish = true
